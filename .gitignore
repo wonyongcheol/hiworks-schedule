@@ -56,3 +56,4 @@ chromedriver
 # OS
 .DS_Store
 Thumbs.db 
+main.spec

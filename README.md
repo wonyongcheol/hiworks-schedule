@@ -1,138 +1,77 @@
 # 하이웍스 스케줄 관리자
 
-하이웍스(Hiworks) 웹사이트에 로그인하여 스케줄 데이터를 수집하는 윈도우 프로그램입니다.
+하이웍스(Hiworks) 웹사이트에 로그인하여 스케줄 데이터를 수집하고, 카테고리별로 관리하며, 엑셀로 내보낼 수 있는 윈도우 프로그램입니다.
 
-## 📋 기능
+## 📋 주요 기능
 
-1. **웹 접속**: 하이웍스 로그인 페이지 자동 접속
-2. **현대적인 GUI**: PyQt6 기반의 아름다운 사용자 인터페이스
-3. **실시간 모니터링**: 웹 접속 상태 및 페이지 정보 실시간 표시
-4. **로그 시스템**: 상세한 로그 기록 및 표시
-5. **자격 증명 저장**: 아이디/비밀번호 암호화 저장 및 자동 로그인
-6. **보안**: Fernet 암호화를 통한 안전한 자격 증명 관리
+- **자동 로그인/자격 증명 저장**: 안전하게 암호화 저장, 자동 로그인 지원
+- **PyQt6 기반 현대적 GUI**: 다크/라이트 테마, 반응형 레이아웃, datepicker
+- **Selenium 자동화**: 하이웍스 2단계 로그인, 일정 JSON 추출
+- **카테고리별 일정 분류**: schedule, spacial, lunar, birthday 등 탭으로 구분
+- **일정 테이블/JSON 동시 제공**: 탭 전환으로 표/원본 JSON 확인
+- **엑셀로 저장**: 현재 보이는 카테고리별 일정 테이블을 xlsx로 저장
+- **실행파일 빌드 지원**: PyInstaller로 단일 exe 생성 가능
 
 ## 🚀 설치 및 실행
 
 ### 1. 의존성 설치
-
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 2. 프로그램 실행
-
 ```bash
 python src/main.py
 ```
 
-## 🎯 현재 구현 상태
+### 3. 실행파일(배포용 EXE) 만들기
+#### (권장) python.org 공식 Python 사용
+```bash
+pip install pyinstaller
+pyinstaller --onefile --windowed --collect-all PyQt6 --paths=src src/main.py
+```
+- dist/main.exe 생성됨
+- chromedriver.exe, config.json, resources/ 등 외부 파일도 dist 폴더에 복사 필요
 
-### ✅ 완료된 기능
-- [x] 프로젝트 구조 설정
-- [x] 설정 관리 시스템
-- [x] 로깅 시스템
-- [x] 기본 GUI 창
-- [x] 하이웍스 웹사이트 접속
-- [x] Chrome WebDriver 자동 설정
-- [x] 페이지 정보 표시
-- [x] 자격 증명 저장 및 관리
-- [x] 암호화된 자격 증명 저장소
-- [x] 자동 로그인 기능
-- [x] 2단계 로그인 자동화 (아이디 입력 → 제출 → 비밀번호 입력)
-- [x] 스케줄 페이지 자동 접근
-- [x] 보기 모드 자동 변경 (목록으로 고정)
-- [x] JavaScript 기반 보기 모드 변경 (HiworksEvent.calendar_change_view)
+#### (Microsoft Store Python은 권장하지 않음)
+- 빌드/실행에 문제가 많으니 공식 Python 사용 권장
 
-### 🔄 진행 중인 기능
-- [ ] 로그인 기능 구현
-- [ ] 스케줄 데이터 추출
-- [ ] Excel 내보내기
+## 🎯 사용법
 
-### 📋 예정된 기능
-- [ ] 데이터 조회 화면
-- [ ] 설정 관리 창
-- [ ] 데이터 필터링 및 정렬
-- [ ] 스케줄 데이터 추출 및 분석
+1. **로그인**: 아이디/비밀번호 입력, 자격 증명 저장/자동 로그인 선택 가능
+2. **날짜 선택**: datepicker로 시작/종료일 지정(기본: 이번달)
+3. **요청**: 일정 JSON을 받아오고, 카테고리별로 표로 정리
+4. **탭 전환**: 테이블/JSON, 카테고리별 일정 전환 가능
+5. **엑셀로 저장**: 각 카테고리별 표 아래 '엑셀로 저장' 버튼으로 xlsx 저장
 
 ## 🛠️ 기술 스택
-
 - **GUI**: PyQt6
-- **웹 스크래핑**: Selenium WebDriver
-- **데이터 처리**: pandas, openpyxl
-- **설정 관리**: JSON
-- **로깅**: Python logging
-- **암호화**: cryptography (Fernet)
+- **웹 자동화**: Selenium WebDriver, ChromeDriver
+- **데이터 처리**: pandas
+- **설정/로그**: JSON, Python logging
 
-## 📁 프로젝트 구조
+## ⚠️ 배포/실행 주의사항
+- **chromedriver.exe**: dist/main.exe와 같은 폴더에 반드시 복사
+- **config.json, resources/**: 필요한 리소스/설정 파일도 dist 폴더에 복사
+- **PyQt6 DLL/리소스**: --collect-all PyQt6 옵션으로 빌드 권장
+- **공식 Python 사용 권장**: Microsoft Store Python은 빌드/실행에 문제 많음
 
+## 📦 프로젝트 구조(일부)
 ```
 hiworks-schedule/
-├── src/                    # 소스 코드
-│   ├── main.py            # 메인 실행 파일
-│   ├── gui/               # GUI 모듈
-│   ├── scraper/           # 웹 스크래핑 모듈
-│   ├── data/              # 데이터 처리 모듈
-│   ├── config/            # 설정 관리 모듈
-│   └── utils/             # 유틸리티 모듈
-├── resources/             # 리소스 파일
-├── data/                  # 데이터 저장소
-├── logs/                  # 로그 파일
-├── requirements.txt       # Python 의존성
-├── config.json           # 설정 파일
+├── src/
+│   ├── main.py
+│   ├── gui/
+│   ├── scraper/
+│   ├── config/
+│   └── ...
+├── resources/
+├── data/
+├── dist/
+├── requirements.txt
+├── config.json
 └── README.md
 ```
 
-## 🔧 설정
-
-`config.json` 파일에서 다음 설정을 변경할 수 있습니다:
-
-- **hiworks.login_url**: 하이웍스 로그인 URL
-- **gui.theme**: GUI 테마 (dark/light)
-- **gui.window_size**: 창 크기
-- **logging.level**: 로그 레벨
-
-## 📝 사용법
-
-1. 프로그램을 실행합니다.
-2. 아이디와 비밀번호를 입력합니다.
-3. "자격 증명 저장" 체크박스를 선택하여 로그인 정보를 저장합니다 (선택사항).
-4. "자동 로그인" 체크박스를 선택하여 다음 실행 시 자동 로그인을 활성화합니다 (선택사항).
-5. 보기 모드는 목록으로 고정되어 있습니다.
-6. "시작" 버튼을 클릭합니다.
-7. Chrome 브라우저가 자동으로 열리고 하이웍스 로그인 페이지로 이동합니다.
-8. 로그인 후 스케줄 페이지로 자동 이동하여 목록 보기 모드로 변경됩니다.
-9. 페이지 정보가 실시간으로 표시됩니다.
-
-### 자격 증명 관리
-- **저장**: "자격 증명 저장" 체크박스 선택 후 로그인
-- **삭제**: 메뉴 → 도구 → 자격 증명 관리 → 저장된 자격 증명 삭제
-- **자동 로그인**: "자동 로그인" 체크박스 선택 시 프로그램 시작 시 자동 로그인
-
-## ⚠️ 주의사항
-
-- Chrome 브라우저가 설치되어 있어야 합니다.
-- 인터넷 연결이 필요합니다.
-- 하이웍스 계정이 필요합니다.
-
-## 🔒 보안
-
-- 로그인 정보는 Fernet 암호화를 통해 안전하게 저장됩니다.
-- 암호화 키는 별도 파일에 저장되어 이중 보안을 제공합니다.
-- HTTPS 통신을 통해 안전한 데이터 전송을 보장합니다.
-- 자격 증명은 `data/credentials.enc` 파일에 암호화된 형태로 저장됩니다.
-
-자세한 보안 정보는 [CREDENTIALS_GUIDE.md](CREDENTIALS_GUIDE.md)를 참조하세요.
-
-## 📚 추가 가이드
-
-- [자격 증명 저장 기능 가이드](CREDENTIALS_GUIDE.md)
-- [2단계 로그인 플로우 가이드](LOGIN_FLOW_GUIDE.md)
-- [스케줄 페이지 접근 및 보기 모드 변경 가이드](SCHEDULE_ACCESS_GUIDE.md)
-
-## 📞 지원
-
-문제가 발생하거나 기능 요청이 있으시면 이슈를 등록해 주세요.
-
-## 📄 라이선스
-
-이 프로젝트는 개인 및 교육 목적으로 사용할 수 있습니다.
+## 📝 변경 이력(주요)
+- datepicker 도입, 자동 로그인, 카테고리별 탭, 엑셀 저장, 실행파일 빌드법 등 최신화

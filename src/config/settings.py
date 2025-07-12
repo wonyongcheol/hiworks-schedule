@@ -1,13 +1,34 @@
 import json
 import os
+import sys
 from typing import Dict, Any
+
+
+def get_app_config_dir():
+    """애플리케이션 설정 디렉토리를 반환합니다."""
+    # 실행파일인지 확인
+    if getattr(sys, 'frozen', False):
+        # PyInstaller로 빌드된 실행파일인 경우
+        app_dir = os.path.dirname(sys.executable)
+    else:
+        # 일반 Python 스크립트인 경우
+        app_dir = os.path.dirname(os.path.abspath(__file__))
+        # src/config에서 상위로 이동
+        app_dir = os.path.dirname(os.path.dirname(app_dir))
+    
+    return app_dir
 
 
 class Settings:
     """애플리케이션 설정을 관리하는 클래스"""
     
-    def __init__(self, config_file: str = "config.json"):
-        self.config_file = config_file
+    def __init__(self, config_file: str = ""):
+        if not config_file:
+            app_dir = get_app_config_dir()
+            self.config_file = os.path.join(app_dir, "config.json")
+        else:
+            self.config_file = config_file
+            
         self.config = self._load_config()
     
     def _load_config(self) -> Dict[str, Any]:

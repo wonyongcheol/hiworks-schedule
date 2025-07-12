@@ -11,6 +11,7 @@ import re
 from typing import Optional, Dict, Any
 from config.settings import settings
 from utils.logger import logger
+import requests
 
 
 class HiworksScraper:
@@ -858,6 +859,43 @@ class HiworksScraper:
         except Exception as e:
             logger.error(f"다음달 이동 중 오류: {e}")
             return False
+    
+    def fetch_schedule_json(self, start_date: str, end_date: str) -> dict:
+        """Selenium 세션 쿠키로 하이웍스 일정 JSON을 직접 받아온다."""
+        url = "https://calendar.office.hiworks.com/kevinlab.com/schedule/json/get_schedule_new"
+        payload = {
+            "accesstype": "S",
+            "syncflag": "N",
+            "hid": "",
+            "birthday_show_flag": "N",
+            "id": "calendar",
+            "start": start_date,
+            "end": end_date
+        }
+        headers = {
+            "User-Agent": "Mozilla/5.0",
+            "Referer": "https://calendar.office.hiworks.com/kevinlab.com/schedule/schedulemain"
+        }
+        session = requests.Session()
+        # Selenium 쿠키를 requests로 복사
+        for cookie in self.driver.get_cookies():
+            session.cookies.set(cookie['name'], cookie['value'])
+        resp = session.post(url, data=payload, headers=headers)
+        resp.raise_for_status()
+        return resp.json()
+
+    def fetch_schedule_after_login(self, user_id: str, user_pw: str, start_date: str, end_date: str) -> dict:
+        """로그인 후 곧바로 POST로 일정 JSON만 받아오기 (스케줄 페이지 이동 없이)."""
+        if not self.login(user_id, user_pw):
+            return {"error": "로그인 실패"}
+        try:
+            logger.info(f"로그인 후 POST로 일정 JSON 요청: {start_date} ~ {end_date}")
+            json_data = self.fetch_schedule_json(start_date, end_date)
+            logger.info(f"일정 JSON 응답: {str(json_data)[:200]} ...")
+            return json_data
+        except Exception as e:
+            logger.error(f"일정 JSON 요청 중 오류: {e}")
+            return {"error": str(e)}
     
     def __enter__(self):
         """컨텍스트 매니저 진입"""

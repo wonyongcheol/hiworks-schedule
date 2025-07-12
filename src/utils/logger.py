@@ -1,8 +1,25 @@
 import logging
 import os
+import sys
 from datetime import datetime
 from typing import Optional
 from config.settings import settings
+
+
+def get_app_log_dir():
+    """애플리케이션 로그 디렉토리를 반환합니다."""
+    # 실행파일인지 확인
+    if getattr(sys, 'frozen', False):
+        # PyInstaller로 빌드된 실행파일인 경우
+        app_dir = os.path.dirname(sys.executable)
+    else:
+        # 일반 Python 스크립트인 경우
+        app_dir = os.path.dirname(os.path.abspath(__file__))
+        # src/utils에서 상위로 이동
+        app_dir = os.path.dirname(os.path.dirname(app_dir))
+    
+    log_dir = os.path.join(app_dir, "logs")
+    return log_dir
 
 
 class Logger:
@@ -36,15 +53,18 @@ class Logger:
         logger.addHandler(console_handler)
         
         # 파일 핸들러 설정
-        log_path = settings.get("logging.file_path", "./logs/")
-        if log_path and not os.path.exists(log_path):
-            os.makedirs(log_path, exist_ok=True)
-        
-        if log_path:
+        try:
+            log_path = get_app_log_dir()
+            if not os.path.exists(log_path):
+                os.makedirs(log_path, exist_ok=True)
+            
             log_file = os.path.join(log_path, f"{self.name}_{datetime.now().strftime('%Y%m%d')}.log")
             file_handler = logging.FileHandler(log_file, encoding='utf-8')
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
+        except Exception as e:
+            # 로그 파일 생성 실패 시 콘솔만 사용
+            print(f"로그 파일 생성 실패: {e}")
         
         return logger
     
