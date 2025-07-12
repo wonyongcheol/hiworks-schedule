@@ -14,14 +14,19 @@ def get_app_data_dir():
     # 실행파일인지 확인
     if getattr(sys, 'frozen', False):
         # PyInstaller로 빌드된 실행파일인 경우
+        # 실행파일이 있는 디렉토리를 기준으로 data 폴더 생성
         app_dir = os.path.dirname(sys.executable)
+        logger.info(f"실행파일 모드 - 실행파일 경로: {sys.executable}")
+        logger.info(f"실행파일 모드 - 앱 디렉토리: {app_dir}")
     else:
         # 일반 Python 스크립트인 경우
         app_dir = os.path.dirname(os.path.abspath(__file__))
         # src/utils에서 상위로 이동
         app_dir = os.path.dirname(os.path.dirname(app_dir))
+        logger.info(f"Python 스크립트 모드 - 앱 디렉토리: {app_dir}")
     
     data_dir = os.path.join(app_dir, "data")
+    logger.info(f"데이터 디렉토리: {data_dir}")
     return data_dir
 
 class CredentialManager:

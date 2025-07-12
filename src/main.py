@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-하이웍스 스케줄 관리자 - 메인 실행 파일
+하이웍스 스케줄 관리자 - 메인 실행 파일 (최적화 버전)
 """
 
 import sys
@@ -28,11 +28,11 @@ def setup_logging():
     """로깅 설정"""
     try:
         with open(ERROR_LOG_PATH, "w", encoding="utf-8") as f:
-            f.write(f"=== 하이웍스 스케줄러 시작 로그 ===\n")
+            f.write(f"=== 하이웍스 스케줄러 시작 로그 (최적화 버전) ===\n")
             f.write(f"시작 시간: {datetime.datetime.now()}\n")
             f.write(f"Python 버전: {sys.version}\n")
             f.write(f"실행 경로: {os.getcwd()}\n")
-            f.write(f"sys.path: {sys.path}\n")
+            f.write(f"실행 모드: {'EXE' if getattr(sys, 'frozen', False) else 'Python'}\n")
             f.write("=" * 50 + "\n")
     except Exception as e:
         print(f"로그 파일 생성 실패: {e}")
@@ -61,57 +61,29 @@ sys.excepthook = excepthook
 current_dir = Path(__file__).parent
 sys.path.insert(0, str(current_dir))
 
-try:
-    # 절대 import로 변경
-    from gui.main_window import main as gui_main
-    from utils.logger import logger
-    from config.settings import settings
-    
-    def main():
-        """메인 함수"""
-        try:
-            logger.info("하이웍스 스케줄 관리자를 시작합니다.")
-            
-            # 설정 로드 확인
-            logger.info("설정을 로드했습니다.")
-            
-            # GUI 애플리케이션 시작
-            gui_main()
-            
-        except KeyboardInterrupt:
-            logger.info("사용자에 의해 프로그램이 중단되었습니다.")
-        except Exception as e:
-            logger.critical(f"프로그램 실행 중 치명적 오류 발생: {e}")
-            sys.exit(1)
-        finally:
-            logger.info("프로그램을 종료합니다.")
-
-    if __name__ == "__main__":
-        main()
+def main():
+    """메인 함수 - 지연 로딩 적용"""
+    try:
+        # 지연 로딩으로 초기 시작 시간 단축
+        from utils.logger import logger
+        logger.info("하이웍스 스케줄 관리자를 시작합니다.")
         
-except ImportError as e:
-    try:
-        with open(ERROR_LOG_PATH, "a", encoding="utf-8") as f:
-            f.write(f"\n=== Import 오류 ===\n")
-            f.write(f"발생 시간: {datetime.datetime.now()}\n")
-            f.write(f"Import 오류: {e}\n")
-            f.write(f"Python 경로: {sys.path}\n")
-            f.write("=" * 50 + "\n")
-    except:
-        pass
-    print(f"Import 오류: {e}")
-    print("Python 경로:", sys.path)
-    sys.exit(1)
-except Exception as e:
-    try:
-        with open(ERROR_LOG_PATH, "a", encoding="utf-8") as f:
-            f.write(f"\n=== 일반 오류 ===\n")
-            f.write(f"발생 시간: {datetime.datetime.now()}\n")
-            f.write(f"오류: {e}\n")
-            f.write("상세 스택 트레이스:\n")
-            traceback.print_exception(type(e), e, e.__traceback__, file=f)
-            f.write("=" * 50 + "\n")
-    except:
-        pass
-    print(f"오류 발생: {e}")
-    sys.exit(1) 
+        # 설정 로드
+        from config.settings import settings
+        logger.info("설정을 로드했습니다.")
+        
+        # GUI 애플리케이션 시작 (지연 로딩)
+        from gui.main_window import main as gui_main
+        logger.info("GUI 모듈 로드 완료, 애플리케이션 시작")
+        gui_main()
+        
+    except KeyboardInterrupt:
+        logger.info("사용자에 의해 프로그램이 중단되었습니다.")
+    except Exception as e:
+        logger.critical(f"프로그램 실행 중 치명적 오류 발생: {e}")
+        sys.exit(1)
+    finally:
+        logger.info("프로그램을 종료합니다.")
+
+if __name__ == "__main__":
+    main() 
