@@ -24,7 +24,7 @@ python src/main.py
 
 ### 3. 실행파일 생성
 ```bash
-pyinstaller --onefile --windowed --collect-all PyQt6 --paths=src --name hiworks-schedule src/main.py
+pyinstaller src/main.py --onedir --windowed --noconfirm --name hiworks-schedule --paths=src
 ```
 
 ## 🎯 사용법
